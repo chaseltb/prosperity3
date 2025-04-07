@@ -1,0 +1,10 @@
+dash
+dash_core_components
+dash_html_components
+dash_table
+dash.dependencies
+plotly.graph_objs
+pandas
+json
+io
+base64
