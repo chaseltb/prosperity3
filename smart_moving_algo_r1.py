@@ -46,27 +46,27 @@ class Trader:
 
                 # Handle buy orders
                 for ask_price, ask_volume in sorted(order_depth.sell_orders.items()):
-                    if ask_price < fair_value - .25:
+                    if ask_price < fair_value - .2:
                         buy_volume = min(-ask_volume, 50)
                         print(f"[{product}] BUY {buy_volume} @ {ask_price}")
                         orders.append(Order(product, ask_price, buy_volume))
 
                 # Handle sell orders
                 for bid_price, bid_volume in sorted(order_depth.buy_orders.items(), reverse=True):
-                    if bid_price > fair_value + .25:
+                    if bid_price > fair_value + .2:
                         sell_volume = min(bid_volume, 50)
                         print(f"[{product}] SELL {sell_volume} @ {bid_price}")
                         orders.append(Order(product, bid_price, -sell_volume))
 
                 for ask_price, ask_volume in sorted(order_depth.sell_orders.items()):
-                    if ask_price < fair_value - .05:
+                    if ask_price < fair_value - .01:
                         buy_volume = min(-ask_volume, 20)  # Limit order size
                         print(f"[{product}] BUY {buy_volume} @ {ask_price}")
                         orders.append(Order(product, ask_price, buy_volume))
 
                 # Handle sell orders
                 for bid_price, bid_volume in sorted(order_depth.buy_orders.items(), reverse=True):
-                    if bid_price > fair_value + .05:
+                    if bid_price > fair_value + .01:
                         sell_volume = min(bid_volume, 20)  # Limit order size
                         print(f"[{product}] SELL {sell_volume} @ {bid_price}")
                         orders.append(Order(product, bid_price, -sell_volume))
