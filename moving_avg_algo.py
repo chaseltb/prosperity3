@@ -7,7 +7,7 @@ from collections import deque
 class Trader:
     def __init__(self):
         self.price_history: Dict[str, deque] = {}
-        self.max_history_length = 5  # Use last 5 mid-prices for averaging
+        self.max_history_length = 1000  # Use last 5 mid-prices for averaging
 
     def run(self, state: TradingState):
         result = {}
