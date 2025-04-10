@@ -1,5 +1,5 @@
 import json
-from typing import Any
+from typing import Any, List, Dict
 
 from datamodel import Listing, Observation, Order, OrderDepth, ProsperityEncoder, Symbol, Trade, TradingState
 
@@ -122,6 +122,9 @@ logger = Logger()
 
 
 class Trader:
+    def __init__(self):
+        self.price_history: Dict[str, List[float]] = {}
+        self.max_history_length = 7  # Use last 8 mid-prices for averaging
     def run(self, state: TradingState) -> tuple[dict[Symbol, list[Order]], int, str]:
         result = {}
         conversions = 0
