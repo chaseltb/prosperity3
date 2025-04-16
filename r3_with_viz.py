@@ -2,6 +2,7 @@ import json
 from datamodel import Listing, Observation, Order, OrderDepth, ProsperityEncoder, Symbol, Trade, TradingState
 from typing import Any, List, Dict
 
+
 class Logger:
     def __init__(self) -> None:
         self.logs = ""
@@ -10,7 +11,7 @@ class Logger:
     def print(self, *objects: Any, sep: str = " ", end: str = "\n") -> None:
         self.logs += sep.join(map(str, objects)) + end
 
-    def flush(self, state: TradingState, orders: dict[Symbol, list[Order]], conversions: int, trader_data: str) -> None:
+    def flush(self, state: TradingState, orders: Dict[Symbol, List[Order]], conversions: int, trader_data: str) -> None:
         base_length = len(self.to_json([
             self.compress_state(state, ""),
             self.compress_orders(orders),
@@ -22,7 +23,7 @@ class Logger:
         max_item_length = (self.max_log_length - base_length) // 3
 
         print(self.to_json([
-            self.compress_state(state, self.truncate(state.traderData, max_item_length)),
+            self.compress_state(state, self.truncate(state.traderData or "", max_item_length)),
             self.compress_orders(orders),
             conversions,
             self.truncate(trader_data, max_item_length),
@@ -43,13 +44,18 @@ class Logger:
             self.compress_observations(state.observations),
         ]
 
-    def compress_listings(self, listings: dict[Symbol, Listing]) -> list[list[Any]]:
-        return [[listing["symbol"], listing["product"], listing["denomination"]] for listing in listings.values()]
+    def compress_listings(self, listings: Dict[Symbol, Listing]) -> list[list[Any]]:
+        return [[listing.symbol, listing.product, listing.denomination] for listing in listings.values()]
 
-    def compress_order_depths(self, order_depths: dict[Symbol, OrderDepth]) -> dict[Symbol, list[Any]]:
-        return {symbol: [order_depth.buy_orders, order_depth.sell_orders] for symbol, order_depth in order_depths.items()}
+    def compress_order_depths(self, order_depths: Dict[Symbol, OrderDepth]) -> dict:
+        return {
+            symbol: [
+                dict(order_depth.buy_orders),
+                dict(order_depth.sell_orders),
+            ] for symbol, order_depth in order_depths.items()
+        }
 
-    def compress_trades(self, trades: dict[Symbol, list[Trade]]) -> list[list[Any]]:
+    def compress_trades(self, trades: Dict[Symbol, List[Trade]]) -> list[list[Any]]:
         return [
             [trade.symbol, trade.price, trade.quantity, trade.buyer, trade.seller, trade.timestamp]
             for arr in trades.values() for trade in arr
@@ -70,7 +76,7 @@ class Logger:
         }
         return [observations.plainValueObservations, conversion_observations]
 
-    def compress_orders(self, orders: dict[Symbol, list[Order]]) -> list[list[Any]]:
+    def compress_orders(self, orders: Dict[Symbol, List[Order]]) -> list[list[Any]]:
         return [[order.symbol, order.price, order.quantity] for arr in orders.values() for order in arr]
 
     def to_json(self, value: Any) -> str:
@@ -79,14 +85,16 @@ class Logger:
     def truncate(self, value: str, max_length: int) -> str:
         return value if len(value) <= max_length else value[:max_length - 3] + "..."
 
+
 logger = Logger()
+
 
 class Trader:
     def __init__(self):
         self.price_history: Dict[str, List[float]] = {}
         self.max_history_length = 7
 
-    def run(self, state: TradingState) -> tuple[dict[Symbol, list[Order]], int, str]:
+    def run(self, state: TradingState) -> tuple[Dict[Symbol, List[Order]], int, str]:
         result: Dict[Symbol, List[Order]] = {}
         conversions = 1
 
