@@ -142,26 +142,26 @@ class Trader:
 
                             voucher_mid = mid_price
 
-                            # Buy undervalued vouchers
+                            # Reduced gap threshold to 2
                             if voucher_mid < intrinsic_value - 2:
                                 for ask_price, ask_volume in sorted(order_depth.sell_orders.items()):
-                                    if ask_price < intrinsic_value - 2:
+                                    if ask_price < intrinsic_value - 2:  # Reduced gap threshold to 2
                                         buy_volume = min(-ask_volume, 20)
-                                        logger.print(f"[{product}] BUY undervalued VOUCHER {buy_volume} @ {ask_price} (IV: {intrinsic_value})")
+                                        logger.print(f"[{product}] BUY undervalued VOUCHER {buy_volume} @ {ask_price}")
                                         orders.append(Order(product, ask_price, buy_volume))
 
-                            # Sell overvalued vouchers
+                            # Reduced gap threshold to 2
                             if voucher_mid > intrinsic_value + 2:
                                 for bid_price, bid_volume in sorted(order_depth.buy_orders.items(), reverse=True):
-                                    if bid_price > intrinsic_value + 2:
+                                    if bid_price > intrinsic_value + 2:  # Reduced gap threshold to 2
                                         sell_volume = min(bid_volume, 20)
-                                        logger.print(f"[{product}] SELL overvalued VOUCHER {sell_volume} @ {bid_price} (IV: {intrinsic_value})")
+                                        logger.print(f"[{product}] SELL overvalued VOUCHER {sell_volume} @ {bid_price}")
                                         orders.append(Order(product, bid_price, -sell_volume))
-                                                except Exception as e:
-                                                    logger.print(f"Failed to process {product} as voucher:", e)
-                            
-                                                result[product] = orders
-                                                continue
+                    except Exception as e:
+                        logger.print(f"Failed to process {product} as voucher:", e)
+
+                    result[product] = orders
+                    continue
 
                 for ask_price, ask_volume in sorted(order_depth.sell_orders.items()):
                     if ask_price < fair_value - 0.2:
